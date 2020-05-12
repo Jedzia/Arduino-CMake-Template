@@ -3,8 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 # Set the project name to your project name, my project isn't very descriptive
 project(myproject CXX)
 
-#include(cmake/StandardProjectSettings.cmake)
-#
+include(cmake/StandardProjectSettings.cmake)
 
 # should go into local setup
 add_definitions(-mmcu=atmega328p -Os)

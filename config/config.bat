@@ -13,7 +13,7 @@ REM )
 REM SET XSD_ROOTDIR=E:\Devel\CPP\Libs\CodeSynthesisXSD-3.3
 
 REM set PATH=C:\Toolchain\AVR\avr-gcc-9.1.0-x64-mingw\bin;C:\Toolchain\mingw-w64\x86_64-w64-mingw32-8.3.0-crt-6.0.0-multilib\bin;C:\msys64\usr\bin;C:\Toolchain\OpenOCD\OpenOCD-20190210-0.10.0\bin;%PATH%
-set PATH=C:\Toolchain\AVR\avr-gcc-9.1.0-x64-mingw\bin;C:\msys64\usr\bin;C:\Toolchain\OpenOCD\OpenOCD-20190210-0.10.0\bin;%PATH%
+set PATH=C:\Toolchain\AVR\avr-gcc-9.1.0-x64-mingw\bin;C:\tools\gnu\bin;C:\msys64\usr\bin;C:\Toolchain\OpenOCD\OpenOCD-20190210-0.10.0\bin;%PATH%
 
 REM call C:\Toolchain\ARM\GNU MCU Eclipse\ARM Embedded GCC\9-2019-q4-major-win32\bin\gccvar.bat
 REM set TOOL_PATH=/C/Toolchain/ARM/GNU Tools ARM Embedded/8 2018-q4-major/bin
