@@ -1,0 +1,13 @@
+     
+   .
+   Setup project:
+   > cmake -D CMAKE_TOOLCHAIN_FILE=/path/to/Arduino-toolchain.cmake <CMAKE_SOURCE_DIR>
+   For specific target:
+   > YYY platformio run -e nucleo_f401re
+   .
+   Upload to target device:
+   > XXX pio run -t upload
+   .
+   Generate IDE files for CLion
+   > ZZZ pio init --ide clion
+   .
