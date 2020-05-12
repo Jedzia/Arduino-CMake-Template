@@ -13,36 +13,28 @@ set(AVRDUDE avrdude)
 set(AVRDUDE_PROGRAMMER arduino) # list devices with `avrdude -c ?`
 set(AVRDUDE_PART m328p) # list parts with `avrdude -p ?`
 
-# Path to st-flash utility. Used by target 'upload'.
-set(STFLASH /home/ppkt/usr/bin/st-flash)
-
 # Arduino target MCU setup
-#SET(CSTANDARD -std=gnu99) #set in library
-SET(CDEBUG -gstabs)
-#SET(CWARN "-Wall -Wno-strict-prototypes")
-SET(CWARN -Wall)
+SET(C_DEBUG -gstabs)
+#SET(C_WARN "-Wall -Wno-strict-prototypes")
+SET(C_WARN -Wall)
 SET(C_TUNING -ffunction-sections -fdata-sections -MMD)
 SET(CXX_TUNING -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics)
-SET(COPT -Os -g)
-#SET(CINCS "-I${ArduinoCode_SOURCE_DIR}/libarduinocore")
-set(CMCUTYPE __AVR_ATmega328P__)
-SET(CMCU -mmcu=atmega328p)
-SET(CDEFS -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR)
-SET(CCFLAGS -CC)
-
-#SET(ARDUINO_CFLAGS "${CMCU} ${CDEBUG} ${CDEFS} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}")
-#SET(ARDUINO_CXXFLAGS "${CMCU} ${CDEFS} ${CINCS} ${COPT}")
+SET(C_OPT -Os -g)
+#SET(C_INCLUDES "-I${ArduinoCode_SOURCE_DIR}/libarduinocore")
+SET(MCU -mmcu=atmega328p)
+set(MCU_TYPE __AVR_ATmega328P__)
+SET(C_DEFS -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR)
+SET(CXX_FLAGS )
 
 # Link this 'library' to set the arduino compile-time options requested
 add_library(arduino_options INTERFACE)
-#target_compile_features(arduino_options INTERFACE cxx_std_17)
+target_compile_features(arduino_options INTERFACE cxx_std_17)
 target_compile_options(arduino_options
-        INTERFACE $<$<COMPILE_LANGUAGE:C>:   ${CMCU} ${C_TUNING} ${CDEBUG} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}>
-        INTERFACE $<$<COMPILE_LANGUAGE:CXX>: ${CMCU} ${C_TUNING} ${CDEBUG} ${CINCS} ${COPT} ${CWARN} ${CXX_TUNING} ${CCFLAGS}>
+        INTERFACE $<$<COMPILE_LANGUAGE:C>:   ${MCU} ${C_TUNING} ${C_DEBUG} ${C_INCLUDES} ${C_OPT} ${C_WARN} ${CSTANDARD} ${CEXTRA}>
+        INTERFACE $<$<COMPILE_LANGUAGE:CXX>: ${MCU} ${C_TUNING} ${C_DEBUG} ${C_INCLUDES} ${C_OPT} ${C_WARN} ${CXX_TUNING} ${CXX_FLAGS}>
         )
-target_compile_definitions(arduino_options INTERFACE ${CMCUTYPE} ${CDEFS})
+target_compile_definitions(arduino_options INTERFACE ${MCU_TYPE} ${C_DEFS})
 target_link_options(arduino_options INTERFACE
-        $<$<COMPILE_LANGUAGE:C>: ${CMCU} ${CWARN} ${COPT} ${CMCU} ${CMCU} ${CMCU}>
-        $<$<COMPILE_LANGUAGE:CXX>: ${CMCU}>
+        $<$<COMPILE_LANGUAGE:C>:   ${MCU} ${C_WARN} ${C_OPT}>
+        $<$<COMPILE_LANGUAGE:CXX>: ${MCU} ${C_WARN} ${C_OPT}>
         )
-# Arduino links -w -Os -g -flto -fuse-linker-plugin -Wl,--gc-sections -mmcu=atmega328p

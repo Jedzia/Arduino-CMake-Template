@@ -22,6 +22,8 @@
   http://www.arduino.cc/en/Tutorial/Blink
 */
 
+static const int DELAY_VALUE = 1400;
+
 #include <Arduino.h>
 int main()
 {
@@ -43,38 +45,42 @@ int main()
   init();
 
   setup();
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "EndlessLoop"
-  while (1) {
+  while (true) {
     loop();
   }
-#pragma clang diagnostic pop
 }
+
+#define LED1 13
+#define LED2 SCL
+#define LED3 10
 
 // the setup function runs once when you press reset or power the board
 void setup()
 {
-  // initialize digital pin LED_BUILTIN as an output.
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(PC5, OUTPUT);
-  pinMode(PD1, OUTPUT);
+  Serial.begin(115200);
 
+  // initialize digital pin LED_BUILTIN as an output.
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(LED3, OUTPUT);
 }
 
 // the loop function runs over and over again forever
 void loop()
 {
-  digitalWrite(LED_BUILTIN, HIGH);// turn the LED on (HIGH is the voltage level)
-  digitalWrite(PC5, HIGH);// turn the LED on (HIGH is the voltage level)
-  digitalWrite(PD1, LOW);// turn the LED off by making the voltage LOW
-   delay(800);// wait for a second
+  Serial.println("Hello");
+
+  digitalWrite(LED1, HIGH);// turn the LED on (HIGH is the voltage level)
+  digitalWrite(LED2, HIGH);// turn the LED on (HIGH is the voltage level)
+  digitalWrite(LED3, LOW);// turn the LED off by making the voltage LOW
+  delay(DELAY_VALUE);// wait for a second
   //  for (int i = 0; i < 100000; ++i) {
   //    __asm__ __volatile__ ("nop\n\t");
   //  }
-  digitalWrite(LED_BUILTIN, LOW);// turn the LED off by making the voltage LOW
-  digitalWrite(PC5, LOW);// turn the LED off by making the voltage LOW
-  digitalWrite(PD1, HIGH);// turn the LED on (HIGH is the voltage level)
-  delay(300);// wait for a second
+  digitalWrite(LED1, LOW);// turn the LED off by making the voltage LOW
+  digitalWrite(LED2, LOW);// turn the LED off by making the voltage LOW
+  digitalWrite(LED3, HIGH);// turn the LED on (HIGH is the voltage level)
+  delay(DELAY_VALUE);// wait for a second
   //  for (int i = 0; i < 100000; ++i) {
   //    __asm__ __volatile__ ("nop\n\t");
   //  }

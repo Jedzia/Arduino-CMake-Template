@@ -1,6 +1,6 @@
 # The Arduino platform library
 
-add_library (arduinocore
+add_library (arduino_core
 		CDC.cpp
 		HardwareSerial.cpp
 		HardwareSerial0.cpp
@@ -27,22 +27,15 @@ add_library (arduinocore
 		wiring_pulse.c
 		wiring_shift.c
 )
-target_include_directories(arduinocore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} variants/standard)
-target_link_libraries(arduinocore PUBLIC arduino_options m)
-target_compile_options(arduinocore
-		#-w -g -fuse-linker-plugin -Wl,--gc-sections -flto
-		PUBLIC -flto
+target_include_directories(arduino_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} variants/standard)
+target_link_libraries(arduino_core PUBLIC arduino_options m)
+target_compile_options(arduino_core
+		PUBLIC -flto -MMD
 		PUBLIC $<$<COMPILE_LANGUAGE:C>:-std=gnu99>
 		PRIVATE -fno-fat-lto-objects
-		#		INTERFACE $<$<COMPILE_LANGUAGE:C>: ${CMCU} ${CDEBUG} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}>
-#		INTERFACE $<$<COMPILE_LANGUAGE:CXX>: ${CMCU} ${CINCS} ${COPT}>
+		PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-CC>
 		)
-target_link_options(arduinocore PUBLIC -fuse-linker-plugin -Wl,--gc-sections -flto)
-#target_compile_options(arduinocore PRIVATE
-#		-g -Os -w -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects
-		#		INTERFACE $<$<COMPILE_LANGUAGE:C>: ${CMCU} ${CDEBUG} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}>
-		#		INTERFACE $<$<COMPILE_LANGUAGE:CXX>: ${CMCU} ${CINCS} ${COPT}>
-#		)
+target_link_options(arduino_core PUBLIC -fuse-linker-plugin -Wl,--gc-sections -flto)
 
 #export library
-add_library(arduino::core ALIAS arduinocore)
+add_library(arduino::core ALIAS arduino_core)
