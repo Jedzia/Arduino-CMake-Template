@@ -101,4 +101,5 @@ endif()
 
 add_subdirectory(libs)
 
+include(cmake/Arduino.cmake)
 add_subdirectory(src)

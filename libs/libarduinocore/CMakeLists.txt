@@ -1,25 +1,6 @@
+# The Arduino platform library
 
 add_library (arduinocore
-#	HardwareSerial.cpp
-#	Print.cpp
-#	wiring.c
-#	wiring_shift.c
-#	WInterrupts.c
-#	wiring_digital.c
-#	WMath.cpp
-#	pins_arduino.c
-#	wiring_analog.c
-#	wiring_pulse.c
-
-		wiring_pulse.S
-		hooks.c
-		WInterrupts.c
-		wiring.c
-		wiring_analog.c
-		wiring_digital.c
-		wiring_pulse.c
-		wiring_shift.c
-		abi.cpp
 		CDC.cpp
 		HardwareSerial.cpp
 		HardwareSerial0.cpp
@@ -27,14 +8,27 @@ add_library (arduinocore
 		HardwareSerial2.cpp
 		HardwareSerial3.cpp
 		IPAddress.cpp
-		main.cpp
-		new.cpp
 		PluggableUSB.cpp
 		Print.cpp
 		Stream.cpp
 		Tone.cpp
 		USBCore.cpp
+		WInterrupts.c
 		WMath.cpp
 		WString.cpp
+		abi.cpp
+		hooks.c
+		main.cpp
+		new.cpp
+		wiring.c
+		wiring_analog.c
+		wiring_digital.c
+		wiring_pulse.S
+		wiring_pulse.c
+		wiring_shift.c
 )
 target_include_directories(arduinocore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} variants/standard)
+target_link_libraries(arduinocore PUBLIC arduino_options)
+
+#export library
+add_library(arduino::core ALIAS arduinocore)

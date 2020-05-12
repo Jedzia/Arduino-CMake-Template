@@ -24,6 +24,7 @@ set -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake and 
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
     set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
     
+    set(SIZE avr-size)
     set(OBJCOPY avr-objcopy)
     set(CMAKE_C_COMPILER avr-gcc)
     set(CMAKE_CXX_COMPILER avr-g++)

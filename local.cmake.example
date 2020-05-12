@@ -15,5 +15,27 @@ set(OOCD_FILE board/st_nucleo_f4.cfg)
 # Path to st-flash utility. Used by target 'upload'.
 set(STFLASH /home/ppkt/usr/bin/st-flash)
 
-# target MCU setup
-add_definitions(-mmcu=atmega328p -Os)
+# Arduino target MCU setup
+SET(CSTANDARD "-std=gnu99")
+SET(CDEBUG "-gstabs")
+#SET(CWARN "-Wall -Wno-strict-prototypes")
+SET(CWARN "-Wall")
+SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
+SET(COPT "-Os")
+#SET(CINCS "-I${ArduinoCode_SOURCE_DIR}/libarduinocore")
+set(CMCUTYPE __AVR_ATmega328P__)
+SET(CMCU "-mmcu=atmega328")
+SET(CDEFS "-DF_CPU=16000000")
+
+
+SET(ARDUINO_CFLAGS "${CMCU} ${CDEBUG} ${CDEFS} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}")
+SET(ARDUINO_CXXFLAGS "${CMCU} ${CDEFS} ${CINCS} ${COPT}")
+
+# Link this 'library' to set the arduino compile-time options requested
+add_library(arduino_options INTERFACE)
+#target_compile_features(arduino_options INTERFACE cxx_std_17)
+target_compile_options(arduino_options
+        INTERFACE $<$<COMPILE_LANGUAGE:C>: ${CMCU} ${CDEBUG} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}>
+        INTERFACE $<$<COMPILE_LANGUAGE:CXX>: ${CMCU} ${CINCS} ${COPT}>
+        )
+target_compile_definitions(arduino_options INTERFACE ${CMCUTYPE} ${CDEFS})

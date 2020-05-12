@@ -1,3 +1,8 @@
+#get_filename_component(PROJECT_NAME ${CMAKE_SOURCE_DIR} NAME)
+set(PROJECT_NAME avr_blink)
+message(STATUS "Configuring project ${PROJECT_NAME}")
+project(${PROJECT_NAME} C CXX ASM)
+
 #option(CPP_STARTER_USE_QT "Enable compilation of QT sample" OFF)
 #option(CPP_STARTER_USE_FLTK "Enable compilation of FLTK sample" OFF)
 #option(CPP_STARTER_USE_GTKMM "Enable compilation of GTKMM sample" OFF)
@@ -42,15 +47,19 @@
 #endif()
 
 # Generic test that uses conan libs
-add_executable(avr_blink main.cpp)
-target_link_libraries(
-        avr_blink PRIVATE
-        arduinocore
+add_executable(${PROJECT_NAME}.elf main.cpp)
+target_link_libraries(${PROJECT_NAME}.elf PRIVATE
+        arduino::core
+        # arduino_options # already imported as public with arduino::core.
         project_options
-#        project_warnings
+        # project_warnings # ToDo: make this work
 )
 #target_link_libraries(
-#  avr_blink PRIVATE project_options project_warnings CONAN_PKG::docopt.cpp
+#  ${PROJECT_NAME}.elf PRIVATE project_options project_warnings CONAN_PKG::docopt.cpp
 #                CONAN_PKG::fmt CONAN_PKG::spdlog)
+do_objcopy(${PROJECT_NAME} bin)
+do_objcopy(${PROJECT_NAME} srec)
+do_objcopy(${PROJECT_NAME} hex)
+do_size(${PROJECT_NAME})
 
-# ToDo: add std targets for objdump, objcopy to bin, hex, etc. and flash/avrdude/OpenOCD. see E:\Projects\Elektronik\ARM\STM32F4\STM32F401\SD_RTC-Shield\Software\Try02CMake\blinky\CMakeLists.txt
+# ToDo: add std targets for objdump, and flash/avrdude/OpenOCD. see E:\Projects\Elektronik\ARM\STM32F4\STM32F401\SD_RTC-Shield\Software\Try02CMake\blinky\CMakeLists.txt
