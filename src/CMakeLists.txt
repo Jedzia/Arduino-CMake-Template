@@ -44,9 +44,10 @@
 # Generic test that uses conan libs
 add_executable(avr_blink main.cpp)
 target_link_libraries(
-  avr_blink PRIVATE 
-  project_options 
-  project_warnings
+        avr_blink PRIVATE
+        arduinocore
+        project_options
+#        project_warnings
 )
 #target_link_libraries(
 #  avr_blink PRIVATE project_options project_warnings CONAN_PKG::docopt.cpp

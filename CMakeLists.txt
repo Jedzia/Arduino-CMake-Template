@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 
 # Set the project name to your project name, my project isn't very descriptive
-project(myproject C CXX ASM)
+project(Arduino-Uno-CMake-Template C CXX ASM)
+set(CMAKE_VERBOSE_MAKEFILE 1)
 
 include(cmake/StandardProjectSettings.cmake)
 
@@ -95,4 +96,9 @@ endif()
 #endif()
 #
 #
+
+#include(${ArduinoCode_SOURCE_DIR}/arduino_diecimila_crosscompile.cmake)
+
+add_subdirectory(libs)
+
 add_subdirectory(src)
