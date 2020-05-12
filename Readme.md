@@ -19,11 +19,11 @@ preferences and paths (see toolchain.local.avr.gcc.cmake, below).
     cmake -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake -G"MinGW Makefiles" ..  
 	cmake-gui -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake -G"MinGW Makefiles" ..
 
-
-
     make
+    make help
     make -j
 	make clean && make -j
+	make 
 
 MSys:
 
@@ -32,16 +32,20 @@ MSys:
     cmake -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.mingw64.avr.gcc.cmake -G"MSYS Makefiles" ..
     make -j
 
-    # ninja has problems with ccache 
+    # ninja has problems with ccache, there is an option to turn ccache off: 
     cmake -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.mingw64.avr.gcc.cmake -GNinja -DENABLE_CCACHE:BOOL=OFF ..
     ninja
-    
+
+See the example `toolchain.local.mingw64.avr.gcc.cmake` below (the second one with *.mingw64.* in it).
 
 ### CLion: ###
 Set `-DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake` as CMake-Options and 
 provide a avr-gcc toolchain under Toolchains.
 
 ### Example `toolchain.local.avr.gcc.cmake` ###
+
+I use this setup when building under a windows command shell with a "MinGW Makefiles"
+CMake-Generator. All tools have to be in the environment search **PATH**. 
 
     set(CMAKE_SYSTEM_NAME Generic)
     set(CMAKE_SYSTEM_PROCESSOR avr)
@@ -68,6 +72,53 @@ provide a avr-gcc toolchain under Toolchains.
 You may set the relative paths (or without a path at all, like above) and set the compiler `/bin`
 in your **PATH** or specify it like `set(CMAKE_C_COMPILER C:/tools/avr-gcc/avr-gcc.exe)` to have
 a independent toolchain setup. This is totally at your liking.
+
+### Example `toolchain.local.mingw64.avr.gcc.cmake` ###
+
+This variation of the above toolchain setup has full paths specified and can work independently.
+I use this when building with MSYS2 in a MSYS2 shell.  
+
+    set(CMAKE_SYSTEM_NAME Generic)
+    set(CMAKE_SYSTEM_PROCESSOR avr)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+    
+    set(SIZE C:/Toolchain/AVR/avr-gcc-9.1.0-x64-mingw/bin/avr-size.exe)
+    set(OBJCOPY C:/Toolchain/AVR/avr-gcc-9.1.0-x64-mingw/bin/avr-objcopy.exe)
+    set(OBJDUMP C:/Toolchain/AVR/avr-gcc-9.1.0-x64-mingw/bin/avr-objdump.exe)
+    
+    set(CMAKE_C_COMPILER C:/Toolchain/AVR/avr-gcc-9.1.0-x64-mingw/bin/avr-gcc.exe)
+    set(CMAKE_CXX_COMPILER C:/Toolchain/AVR/avr-gcc-9.1.0-x64-mingw/bin/avr-g++.exe)
+    
+    set(CMAKE_AR C:/Toolchain/AVR/avr-gcc-9.1.0-x64-mingw/bin/avr-gcc-ar.exe)
+    set(CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> qc <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> qc <TARGET> <LINK_FLAGS> <OBJECTS>")
+    
+    set(CMAKE_RANLIB C:/Toolchain/AVR/avr-gcc-9.1.0-x64-mingw/bin/avr-gcc-ranlib.exe)
+    
+    #set(CMAKE_EXE_LINKER_FLAGS_INIT "--specs=rdimon.specs")
+
+## Some Visual Impressions ## 
+
+
+* Windows Shell CMake configuration    
+  ![Windows Shell CMake configuration](doc/Media/2020-05-12_23_30_03-AVR_Embedded_GCC_Shell_configure.png)
+* Windows Shell running make
+  ![Windows Shell running make](doc/Media/2020-05-12_23_30_03-AVR_Embedded_GCC_Shell.png)
+* Windows Shell flashing an Uno
+  ![Windows Shell flashing an Uno](doc/Media/2020-05-13 01_03_19-AVR_Embedded_GCC_Shell_flash.png)
+
+
+* MSYS2 CMake Configuration
+  ![MSYS2 CMake Configuration](doc/Media/2020-05-13 00_12_35-Cmder.png)
+* MSYS2 running ninja  
+  ![MSYS2 running ninja](doc/Media/2020-05-13 00_13_15-Cmder_Ninja.png)
+
+
+* CLion flashing an Uno  
+  ![CLion flashing an Uno](doc/Media/2020-05-13 01_04_13-Arduino-Uno-CMake-Template–main.cpp.png)
 
 
 # Development Notes #    
@@ -117,13 +168,3 @@ A build cycle snapshot:
     [100%] Built target avr_blink.hex
     
     E:\Projects\Elektronik\Arduino\!Templates\CMake\Arduino-Uno-CMake-Template\build>
-
-* Windows Shell CMake configuration    
-  ![Windows Shell CMake configuration](doc/Media/2020-05-12_23_30_03-AVR_Embedded_GCC_Shell_configure.png)
-* Windows Shell running make
-  ![Windows Shell running make](doc/Media/2020-05-12_23_30_03-AVR_Embedded_GCC_Shell.png)
-
-* MSYS2 CMake Configuration
-  ![MSYS2 CMake Configuration](doc/Media/2020-05-13 00_13_15-Cmder_Ninja.png)
-* MSYS2 running ninja  
-  ![MSYS2 running ninja](doc/Media/2020-05-13 00_12_35-Cmder.png)
