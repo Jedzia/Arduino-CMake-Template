@@ -1,4 +1,4 @@
-@title Launching Clion with 'ARM Embedded GCC\9-2019-q4-major-win32\bin' settings.
+@title Launching Clion with 'AVR Embedded GCC' settings.
 @echo off
 call %~dp0%config\config.bat
 

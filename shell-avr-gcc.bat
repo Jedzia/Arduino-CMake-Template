@@ -1,4 +1,4 @@
-@title 'ARM Embedded GCC\9-2019-q4-major-win32\bin' Shell.
+@title 'AVR Embedded GCC' Shell.
 @echo off
 call %~dp0%config\config.bat
 
