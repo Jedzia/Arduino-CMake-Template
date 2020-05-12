@@ -174,3 +174,4 @@ dkms.conf
 *.out
 *.app
 
+/local.cmake
