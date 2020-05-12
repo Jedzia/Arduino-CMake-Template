@@ -1,7 +1,15 @@
      
    .
    Setup project:
-   > cmake -D CMAKE_TOOLCHAIN_FILE=/path/to/Arduino-toolchain.cmake <CMAKE_SOURCE_DIR>
+   > cmake -DCMAKE_TOOLCHAIN_FILE=/path/to/Arduino-toolchain.cmake <CMAKE_SOURCE_DIR>
+   > 
+   > cmake -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake -G"MinGW Makefiles" ..  
+   > cmake-gui -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake -G"MinGW Makefiles" ..
+   > 
+   > make help
+   > make
+   > make clean && make
+   .   
    For specific target:
    > YYY platformio run -e nucleo_f401re
    .
