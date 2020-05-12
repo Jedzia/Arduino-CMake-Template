@@ -1,49 +1,14 @@
-#get_filename_component(PROJECT_NAME ${CMAKE_SOURCE_DIR} NAME)
+#get_filename_component(PROJECT_NAME ${CMAKE_SOURCE_DIR}../ NAME)
 set(PROJECT_NAME avr_blink)
 message(STATUS "Configuring project ${PROJECT_NAME}")
 project(${PROJECT_NAME} C CXX ASM)
 
-#option(CPP_STARTER_USE_QT "Enable compilation of QT sample" OFF)
-#option(CPP_STARTER_USE_FLTK "Enable compilation of FLTK sample" OFF)
-#option(CPP_STARTER_USE_GTKMM "Enable compilation of GTKMM sample" OFF)
-#option(CPP_STARTER_USE_IMGUI "Enable compilation of ImGui sample" OFF)
-#option(CPP_STARTER_USE_NANA "Enable compilation of Nana GUI sample" OFF)
 #option(CPP_STARTER_USE_SDL "Enable compilation of SDL sample" OFF)
 #
 ## sdl
 #if(CPP_STARTER_USE_SDL)
 #  message("Using SDL2")
 #  add_subdirectory(sdl)
-#endif()
-#
-## qt
-#if(CPP_STARTER_USE_QT)
-#  message("Using Qt")
-#  add_subdirectory(qt)
-#endif()
-#
-## fltk test
-#if(CPP_STARTER_USE_FLTK)
-#  message("Using FLTK")
-#  add_subdirectory(fltk)
-#endif()
-#
-## gtkmm test
-#if(CPP_STARTER_USE_GTKMM)
-#  message("Using gtkmm")
-#  add_subdirectory(gtkmm)
-#endif()
-#
-## imgui example
-#if(CPP_STARTER_USE_IMGUI)
-#  message("Using Dear ImGui")
-#  add_subdirectory(imgui)
-#endif()
-#
-## Nana
-#if(CPP_STARTER_USE_NANA)
-#  message("Using Nana")
-#  add_subdirectory(nana)
 #endif()
 
 # Generic test that uses conan libs
@@ -63,3 +28,101 @@ do_objcopy(${PROJECT_NAME} hex)
 do_size(${PROJECT_NAME})
 
 # ToDo: add std targets for objdump, and flash/avrdude/OpenOCD. see E:\Projects\Elektronik\ARM\STM32F4\STM32F401\SD_RTC-Shield\Software\Try02CMake\blinky\CMakeLists.txt
+
+add_custom_target(objcopy_flash
+        ${OBJCOPY} -O ihex -R .eeprom "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep.hex
+        #${OBJCOPY} -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep
+        DEPENDS ${PROJECT_NAME}.elf
+        COMMENT "Invoking: objcopy for flash '${PROJECT_NAME}.elf'")
+
+add_custom_target(flash
+        ${AVRDUDE} -c ${AVRDUDE_PROGRAMMER} -p ${AVRDUDE_PART} -b ${BAUDRATE} -P ${PORT} -U flash:w:"${PROJECT_NAME}.eep.hex"
+        DEPENDS objcopy_flash
+        COMMENT "Invoking: avrdude flash with ${PROJECT_NAME}.elf")
+
+add_custom_target(monitor # Start serial monitor.
+        ${PYTHON} -m serial.tools.miniterm --raw --eol CRLF --encoding ascii ${PORT} ${BAUDRATE}
+        COMMENT "Invoking: miniterm on port ${PORT}. Exit with CTRL+'+'")
+add_custom_target(fmonitor # Flash target and start serial monitor.
+        ${PYTHON} -m serial.tools.miniterm --raw --eol CRLF --encoding ascii ${PORT} ${BAUDRATE}
+        DEPENDS flash
+        COMMENT "Invoking: miniterm on port ${PORT}. Exit with CTRL+'+'")
+
+
+add_custom_target(upload # Flash target via 'st-flash'.
+        stat -c %s ${PROJECT_NAME}.bin &&
+        ${STFLASH} --reset write ${PROJECT_NAME}.bin 0x08000000
+        DEPENDS ${PROJECT_NAME}.bin)
+
+# D:\arduino-1.8.9\arduino-builder -dump-prefs -logger=machine -hardware D:\arduino-1.8.9\hardware -hardware D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -hardware D:\Users\Jedzia.pubsiX\Documents\Arduino\hardware -tools D:\arduino-1.8.9\tools-builder -tools D:\arduino-1.8.9\hardware\tools\avr -tools D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -built-in-libraries D:\arduino-1.8.9\libraries -libraries D:\Users\Jedzia.pubsiX\Documents\Arduino\libraries -fqbn=arduino:avr:uno -vid-pid=0X2341_0X0043 -ide-version=10809 -build-path D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_build_472693 -warnings=none -build-cache D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_cache_552243 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.arduinoOTA-1.2.1.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc-5.4.0-atmel3.6.1-arduino2.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude-6.3.0-arduino14.path=D:\arduino-1.8.9\hardware\tools\avr -verbose D:\arduino-1.8.9\examples\01.Basics\Blink\Blink.ino
+# D:\arduino-1.8.9\arduino-builder -compile -logger=machine -hardware D:\arduino-1.8.9\hardware -hardware D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -hardware D:\Users\Jedzia.pubsiX\Documents\Arduino\hardware -tools D:\arduino-1.8.9\tools-builder -tools D:\arduino-1.8.9\hardware\tools\avr -tools D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -built-in-libraries D:\arduino-1.8.9\libraries -libraries D:\Users\Jedzia.pubsiX\Documents\Arduino\libraries -fqbn=arduino:avr:uno -vid-pid=0X2341_0X0043 -ide-version=10809 -build-path D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_build_472693 -warnings=none -build-cache D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_cache_552243 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.arduinoOTA-1.2.1.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc-5.4.0-atmel3.6.1-arduino2.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude-6.3.0-arduino14.path=D:\arduino-1.8.9\hardware\tools\avr -verbose D:\arduino-1.8.9\examples\01.Basics\Blink\Blink.ino
+# Using board 'uno' from platform in folder: D:\arduino-1.8.9\hardware\arduino\avr
+# Using core 'arduino' from platform in folder: D:\arduino-1.8.9\hardware\arduino\avr
+# Detecting libraries used...
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -flto -w -x c++ -E -CC -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\sketch\\Blink.ino.cpp" -o nul
+# Generating function prototypes...
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -flto -w -x c++ -E -CC -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\sketch\\Blink.ino.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\preproc\\ctags_target_for_gcc_minus_e.cpp"
+# "D:\\arduino-1.8.9\\tools-builder\\ctags\\5.8-arduino11/ctags" -u --language-force=c++ -f - --c++-kinds=svpf --fields=KSTtzns --line-directives "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\preproc\\ctags_target_for_gcc_minus_e.cpp"
+# Compiling sketch...
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\sketch\\Blink.ino.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\sketch\\Blink.ino.cpp.o"
+# Compiling libraries...
+# Compiling core...
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc" -c -g -x assembler-with-cpp -flto -MMD -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\wiring_pulse.S" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring_pulse.S.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc" -c -g -Os -w -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\WInterrupts.c" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\WInterrupts.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc" -c -g -Os -w -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\wiring_shift.c" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring_shift.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc" -c -g -Os -w -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\hooks.c" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\hooks.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc" -c -g -Os -w -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\wiring_pulse.c" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring_pulse.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc" -c -g -Os -w -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\wiring.c" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc" -c -g -Os -w -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\wiring_analog.c" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring_analog.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc" -c -g -Os -w -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\wiring_digital.c" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring_digital.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\Print.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\Print.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\CDC.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\CDC.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\HardwareSerial3.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\HardwareSerial3.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\WMath.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\WMath.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\WString.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\WString.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\USBCore.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\USBCore.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\HardwareSerial1.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\HardwareSerial1.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\HardwareSerial0.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\HardwareSerial0.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\main.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\main.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\PluggableUSB.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\PluggableUSB.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\Stream.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\Stream.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\HardwareSerial2.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\HardwareSerial2.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\IPAddress.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\IPAddress.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\abi.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\abi.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\HardwareSerial.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\HardwareSerial.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\new.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\new.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-g++" -c -g -Os -w -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino" "-ID:\\arduino-1.8.9\\hardware\\arduino\\avr\\variants\\standard" "D:\\arduino-1.8.9\\hardware\\arduino\\avr\\cores\\arduino\\Tone.cpp" -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\Tone.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\CDC.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\HardwareSerial.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\HardwareSerial0.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\HardwareSerial1.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\HardwareSerial2.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\HardwareSerial3.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\IPAddress.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\PluggableUSB.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\Print.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\Stream.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\Tone.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\USBCore.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\WInterrupts.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\WMath.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\WString.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\abi.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\hooks.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\main.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\new.cpp.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring_analog.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring_digital.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring_pulse.S.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring_pulse.c.o"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc-ar" rcs "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\core.a" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\core\\wiring_shift.c.o"
+# Archiving built core (caching) in: D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_cache_552243\core\core_arduino_avr_uno_ac073389bbb9118bf47c944fbcfbe3c0.a
+# Linking everything together...
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-gcc" -w -Os -g -flto -fuse-linker-plugin -Wl,--gc-sections -mmcu=atmega328p -o "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693/Blink.ino.elf" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693\\sketch\\Blink.ino.cpp.o" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693/core\\core.a" "-LD:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693" -lm
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-objcopy" -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693/Blink.ino.elf" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693/Blink.ino.eep"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-objcopy" -O ihex -R .eeprom "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693/Blink.ino.elf" "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693/Blink.ino.hex"
+# "D:\\arduino-1.8.9\\hardware\\tools\\avr/bin/avr-size" -A "D:\\Users\\JEDZIA~1.PUB\\AppData\\Local\\Temp\\arduino_build_472693/Blink.ino.elf"
+# Sketch uses 930 bytes (2%) of program storage space. Maximum is 32256 bytes.
+# Global variables use 9 bytes (0%) of dynamic memory, leaving 2039 bytes for local variables. Maximum is 2048 bytes.
+# Error downloading http://arduino.esp8266.com/versions/2.3.0/package_esp8266com_index.json

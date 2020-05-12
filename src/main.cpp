@@ -23,17 +23,59 @@
 */
 
 #include <Arduino.h>
+int main()
+{
+
+  /*init();
+
+  Serial.begin(115200);
+  pinMode(13, OUTPUT);
+  int pin = HIGH;
+  for(;;)
+  {
+    Serial.println("Hello");
+    digitalWrite(13, pin);
+    (pin == HIGH) ? (pin = LOW) : (pin = HIGH);
+    delay(1000);
+  }
+  return 0;*/
+
+  init();
+
+  setup();
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "EndlessLoop"
+  while (1) {
+    loop();
+  }
+#pragma clang diagnostic pop
+}
 
 // the setup function runs once when you press reset or power the board
-void setup() {
+void setup()
+{
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(PC5, OUTPUT);
+  pinMode(PD1, OUTPUT);
+
 }
 
 // the loop function runs over and over again forever
-void loop() {
-  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(100);                       // wait for a second
-  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-  delay(500);                       // wait for a second
+void loop()
+{
+  digitalWrite(LED_BUILTIN, HIGH);// turn the LED on (HIGH is the voltage level)
+  digitalWrite(PC5, HIGH);// turn the LED on (HIGH is the voltage level)
+  digitalWrite(PD1, LOW);// turn the LED off by making the voltage LOW
+   delay(800);// wait for a second
+  //  for (int i = 0; i < 100000; ++i) {
+  //    __asm__ __volatile__ ("nop\n\t");
+  //  }
+  digitalWrite(LED_BUILTIN, LOW);// turn the LED off by making the voltage LOW
+  digitalWrite(PC5, LOW);// turn the LED off by making the voltage LOW
+  digitalWrite(PD1, HIGH);// turn the LED on (HIGH is the voltage level)
+  delay(300);// wait for a second
+  //  for (int i = 0; i < 100000; ++i) {
+  //    __asm__ __volatile__ ("nop\n\t");
+  //  }
 }

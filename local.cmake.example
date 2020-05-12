@@ -5,37 +5,40 @@
 set(PYTHON "C:/Python/Python37/python")
 
 # Serial monitor configuration. Used by target 'monitor and 'fmonitor'.
-set(PORT COM17)
+set(PORT COM18)
 set(BAUDRATE 115200)
 
-# Path to OpenOCD. Used by target 'flash'.
-set(OOCD openocd)
-set(OOCD_FILE board/st_nucleo_f4.cfg)
+# Path to avrdude. Used by target 'flash'.
+set(AVRDUDE avrdude)
+set(AVRDUDE_PROGRAMMER arduino) # list devices with `avrdude -c ?`
+set(AVRDUDE_PART m328p) # list parts with `avrdude -p ?`
 
 # Path to st-flash utility. Used by target 'upload'.
 set(STFLASH /home/ppkt/usr/bin/st-flash)
 
 # Arduino target MCU setup
-SET(CSTANDARD "-std=gnu99")
-SET(CDEBUG "-gstabs")
+SET(CSTANDARD -std=gnu99)
+SET(CDEBUG -gstabs)
 #SET(CWARN "-Wall -Wno-strict-prototypes")
-SET(CWARN "-Wall")
-SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
-SET(COPT "-Os")
+SET(CWARN -Wall)
+#SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
+SET(CTUNING -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics)
+SET(COPT -Os -flto)
 #SET(CINCS "-I${ArduinoCode_SOURCE_DIR}/libarduinocore")
 set(CMCUTYPE __AVR_ATmega328P__)
-SET(CMCU "-mmcu=atmega328")
-SET(CDEFS "-DF_CPU=16000000")
+SET(CMCU -mmcu=atmega328p)
+SET(CDEFS -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR)
+SET(CCFLAGS -std=gnu++11 -w -x c++ -CC)
+#-std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -flto -w -x c++ -E -CC
 
-
-SET(ARDUINO_CFLAGS "${CMCU} ${CDEBUG} ${CDEFS} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}")
-SET(ARDUINO_CXXFLAGS "${CMCU} ${CDEFS} ${CINCS} ${COPT}")
+#SET(ARDUINO_CFLAGS "${CMCU} ${CDEBUG} ${CDEFS} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}")
+#SET(ARDUINO_CXXFLAGS "${CMCU} ${CDEFS} ${CINCS} ${COPT}")
 
 # Link this 'library' to set the arduino compile-time options requested
 add_library(arduino_options INTERFACE)
 #target_compile_features(arduino_options INTERFACE cxx_std_17)
 target_compile_options(arduino_options
-        INTERFACE $<$<COMPILE_LANGUAGE:C>: ${CMCU} ${CDEBUG} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}>
-        INTERFACE $<$<COMPILE_LANGUAGE:CXX>: ${CMCU} ${CINCS} ${COPT}>
+        INTERFACE $<$<COMPILE_LANGUAGE:C>: ${CMCU} ${CTUNING} ${CDEBUG} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}>
+        INTERFACE $<$<COMPILE_LANGUAGE:CXX>: ${CMCU} ${CTUNING} ${CINCS} ${COPT} ${CCFLAGS}>
         )
 target_compile_definitions(arduino_options INTERFACE ${CMCUTYPE} ${CDEFS})
