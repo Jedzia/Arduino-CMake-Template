@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.15)
 
 # Set the project name to your project name, my project isn't very descriptive
 project(Arduino-Uno-CMake-Template C CXX ASM)
-set(CMAKE_VERBOSE_MAKEFILE 1)
 
 include(cmake/StandardProjectSettings.cmake)
 

@@ -1,6 +1,9 @@
 # Settings-File for local settings. Copy this template to 'local.cmake' and adjust the
 # paths and settings to your needing.
 
+# Enable verbose output of Makefile-Commands.
+#set(CMAKE_VERBOSE_MAKEFILE 1)
+
 # Python and serial.tools.miniterm is required for serial monitor functionality.
 set(PYTHON "C:/Python/Python37/python")
 
