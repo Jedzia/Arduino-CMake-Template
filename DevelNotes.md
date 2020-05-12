@@ -2,14 +2,11 @@
 
 
 
-    E:\Projects\Elektronik\Arduino\!Templates\CMake\MyArduino-CMake-Toolchain\Examples\01_hello_world\build>
-    
-    cmake -D CMAKE_TOOLCHAIN_FILE=../../../Arduino-toolchain.cmake -DARDUINO_INSTALL_PATH=D:/arduino-1.8.9 -G"MinGW Makefiles" ..
+    E:\Projects\Elektronik\Arduino\!Templates\CMake\Uno-CMake-Template\build>
+    cmake -D CMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake -G"MinGW Makefiles" ..  
 
-uncomment 
-
-    set(ARDUINO_BOARD "Arduino/Genuino Uno [avr.uno]") # Arduino/Genuino Uno
-
-in BoardOptions.cmake
+ToDo: make a local.cmake
+see `E:\Projects\Elektronik\ARM\STM32F4\STM32F401\SD_RTC-Shield\Software\Try02CMake\blinky\local.cmake.example` + 
+`E:\Projects\Elektronik\ARM\STM32F4\STM32F401\SD_RTC-Shield\Software\Try02CMake\blinky\local.cmake`
 
     make

@@ -1,11 +1,22 @@
-#include <cstdlib>
-#include <iostream>
+/* 
+ * File: blink.c
+ * Description: Toggels pin PB0 every 500ms
+ * From: C-Programmierung mit AVR-GCC
+ */
 
-using namespace std;
+#define F_CPU 8000000UL
 
-int main(int argc, char *argv[])
-{
-    cout << "hello" << endl;
-    system("PAUSE");
-    return EXIT_SUCCESS;
+#include <avr/io.h>
+#include <util/delay.h>
+
+int main (void) {
+
+   DDRB |= (1 << PB0);
+
+   while(1) {
+       PORTB ^= (1 << PB0);
+       _delay_ms(500);
+   }
+
+   return 0;
 }

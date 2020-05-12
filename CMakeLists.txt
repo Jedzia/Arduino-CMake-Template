@@ -2,8 +2,27 @@ cmake_minimum_required(VERSION 3.15)
 
 # Set the project name to your project name, my project isn't very descriptive
 project(myproject CXX)
+
 #include(cmake/StandardProjectSettings.cmake)
 #
+
+# should go into local setup
+add_definitions(-mmcu=atmega328p -Os)
+
+# check if we have a local cmake include file and include it if we do
+# this is useful for setting our python location or st-flash as an alternative to
+# environment variables
+set(PYTHON "C:/Python/Python37/python")
+set(PORT COM17)
+set(BAUDRATE 115200)
+set(OOCD openocd)
+set(OOCD_FILE board/st_nucleo_f4.cfg)
+set(STFLASH /home/ppkt/usr/bin/st-flash)
+if (EXISTS ${CMAKE_SOURCE_DIR}/local.cmake)
+    message(STATUS "Using local.cmake")
+    include(${CMAKE_SOURCE_DIR}/local.cmake)
+endif ()
+
 ## Link this 'library' to set the c++ standard / compile-time options requested
 #add_library(project_options INTERFACE)
 #target_compile_features(project_options INTERFACE cxx_std_17)
