@@ -17,19 +17,18 @@ set(AVRDUDE_PART m328p) # list parts with `avrdude -p ?`
 set(STFLASH /home/ppkt/usr/bin/st-flash)
 
 # Arduino target MCU setup
-SET(CSTANDARD -std=gnu99)
+#SET(CSTANDARD -std=gnu99) #set in library
 SET(CDEBUG -gstabs)
 #SET(CWARN "-Wall -Wno-strict-prototypes")
 SET(CWARN -Wall)
-#SET(CTUNING "-funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums")
-SET(CTUNING -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics)
-SET(COPT -Os -flto)
+SET(C_TUNING -ffunction-sections -fdata-sections -MMD)
+SET(CXX_TUNING -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics)
+SET(COPT -Os -g)
 #SET(CINCS "-I${ArduinoCode_SOURCE_DIR}/libarduinocore")
 set(CMCUTYPE __AVR_ATmega328P__)
 SET(CMCU -mmcu=atmega328p)
 SET(CDEFS -DF_CPU=16000000L -DARDUINO=10809 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR)
-SET(CCFLAGS -std=gnu++11 -w -x c++ -CC)
-#-std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -flto -w -x c++ -E -CC
+SET(CCFLAGS -CC)
 
 #SET(ARDUINO_CFLAGS "${CMCU} ${CDEBUG} ${CDEFS} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}")
 #SET(ARDUINO_CXXFLAGS "${CMCU} ${CDEFS} ${CINCS} ${COPT}")
@@ -38,7 +37,12 @@ SET(CCFLAGS -std=gnu++11 -w -x c++ -CC)
 add_library(arduino_options INTERFACE)
 #target_compile_features(arduino_options INTERFACE cxx_std_17)
 target_compile_options(arduino_options
-        INTERFACE $<$<COMPILE_LANGUAGE:C>: ${CMCU} ${CTUNING} ${CDEBUG} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}>
-        INTERFACE $<$<COMPILE_LANGUAGE:CXX>: ${CMCU} ${CTUNING} ${CINCS} ${COPT} ${CCFLAGS}>
+        INTERFACE $<$<COMPILE_LANGUAGE:C>:   ${CMCU} ${C_TUNING} ${CDEBUG} ${CINCS} ${COPT} ${CWARN} ${CSTANDARD} ${CEXTRA}>
+        INTERFACE $<$<COMPILE_LANGUAGE:CXX>: ${CMCU} ${C_TUNING} ${CDEBUG} ${CINCS} ${COPT} ${CWARN} ${CXX_TUNING} ${CCFLAGS}>
         )
 target_compile_definitions(arduino_options INTERFACE ${CMCUTYPE} ${CDEFS})
+target_link_options(arduino_options INTERFACE
+        $<$<COMPILE_LANGUAGE:C>: ${CMCU} ${CWARN} ${COPT} ${CMCU} ${CMCU} ${CMCU}>
+        $<$<COMPILE_LANGUAGE:CXX>: ${CMCU}>
+        )
+# Arduino links -w -Os -g -flto -fuse-linker-plugin -Wl,--gc-sections -mmcu=atmega328p
