@@ -42,7 +42,12 @@
 #endif()
 
 # Generic test that uses conan libs
-add_executable(intro main.cpp)
+add_executable(avr_blink main.cpp)
+target_link_libraries(
+  avr_blink PRIVATE 
+  project_options 
+  project_warnings
+)
 #target_link_libraries(
-#  intro PRIVATE project_options project_warnings CONAN_PKG::docopt.cpp
+#  avr_blink PRIVATE project_options project_warnings CONAN_PKG::docopt.cpp
 #                CONAN_PKG::fmt CONAN_PKG::spdlog)
