@@ -27,17 +27,23 @@ do_objcopy(${PROJECT_NAME} srec)
 do_objcopy(${PROJECT_NAME} hex)
 do_size(${PROJECT_NAME})
 
-# ToDo: add std targets for objdump, and flash/avrdude/OpenOCD. see E:\Projects\Elektronik\ARM\STM32F4\STM32F401\SD_RTC-Shield\Software\Try02CMake\blinky\CMakeLists.txt
+# ToDo: move custom targets to cmake/Arduino.cmake.
 
-add_custom_target(objcopy_flash
-        ${OBJCOPY} -O ihex -R .eeprom "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep.hex
-        #${OBJCOPY} -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep
+# it seems that the ihex detour is not necessary
+#add_custom_target(objcopy_flash
+#        ${OBJCOPY} -O ihex -R .eeprom "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep.hex
+#        #${OBJCOPY} -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep
+#        DEPENDS ${PROJECT_NAME}.elf
+#        COMMENT "Invoking: objcopy for flash '${PROJECT_NAME}.elf'")
+#
+#add_custom_target(flash
+#        ${AVRDUDE} -c ${AVRDUDE_PROGRAMMER} -p ${AVRDUDE_PART} -b ${BAUDRATE} -P ${PORT} -U flash:w:"${PROJECT_NAME}.eep.hex"
+#        DEPENDS objcopy_flash
+#        COMMENT "Invoking: avrdude flash with ${PROJECT_NAME}.elf")
+
+add_custom_target(flash # upload the program via avrdude
+        ${AVRDUDE} -c ${AVRDUDE_PROGRAMMER} -p ${AVRDUDE_PART} -b ${BAUDRATE} -P ${PORT} -U flash:w:"${PROJECT_NAME}.elf"
         DEPENDS ${PROJECT_NAME}.elf
-        COMMENT "Invoking: objcopy for flash '${PROJECT_NAME}.elf'")
-
-add_custom_target(flash
-        ${AVRDUDE} -c ${AVRDUDE_PROGRAMMER} -p ${AVRDUDE_PART} -b ${BAUDRATE} -P ${PORT} -U flash:w:"${PROJECT_NAME}.eep.hex"
-        DEPENDS objcopy_flash
         COMMENT "Invoking: avrdude flash with ${PROJECT_NAME}.elf")
 
 add_custom_target(monitor # Start serial monitor.
@@ -48,11 +54,18 @@ add_custom_target(fmonitor # Flash target and start serial monitor.
         DEPENDS flash
         COMMENT "Invoking: miniterm on port ${PORT}. Exit with CTRL+'+'")
 
+add_custom_target(listing # Assembler listing
+        ${OBJDUMP} -S "${PROJECT_NAME}.elf" > ${PROJECT_NAME}.lst
+        DEPENDS ${PROJECT_NAME}.elf
+        COMMENT "Creating assembly listing of '${PROJECT_NAME}.elf'")
 
-add_custom_target(upload # Flash target via 'st-flash'.
-        stat -c %s ${PROJECT_NAME}.bin &&
-        ${STFLASH} --reset write ${PROJECT_NAME}.bin 0x08000000
-        DEPENDS ${PROJECT_NAME}.bin)
+add_custom_target(map # Map file with size information
+        COMMAND ${OBJDUMP} -t "${PROJECT_NAME}.elf" > ${PROJECT_NAME}.map
+        COMMAND ${SIZE} --format=berkeley "$<TARGET_FILE:${PROJECT_NAME}.elf>" >> ${PROJECT_NAME}.map
+        DEPENDS ${PROJECT_NAME}.elf
+        COMMENT "Creating assembly listing of '${PROJECT_NAME}.elf'")
+
+
 
 # D:\arduino-1.8.9\arduino-builder -dump-prefs -logger=machine -hardware D:\arduino-1.8.9\hardware -hardware D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -hardware D:\Users\Jedzia.pubsiX\Documents\Arduino\hardware -tools D:\arduino-1.8.9\tools-builder -tools D:\arduino-1.8.9\hardware\tools\avr -tools D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -built-in-libraries D:\arduino-1.8.9\libraries -libraries D:\Users\Jedzia.pubsiX\Documents\Arduino\libraries -fqbn=arduino:avr:uno -vid-pid=0X2341_0X0043 -ide-version=10809 -build-path D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_build_472693 -warnings=none -build-cache D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_cache_552243 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.arduinoOTA-1.2.1.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc-5.4.0-atmel3.6.1-arduino2.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude-6.3.0-arduino14.path=D:\arduino-1.8.9\hardware\tools\avr -verbose D:\arduino-1.8.9\examples\01.Basics\Blink\Blink.ino
 # D:\arduino-1.8.9\arduino-builder -compile -logger=machine -hardware D:\arduino-1.8.9\hardware -hardware D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -hardware D:\Users\Jedzia.pubsiX\Documents\Arduino\hardware -tools D:\arduino-1.8.9\tools-builder -tools D:\arduino-1.8.9\hardware\tools\avr -tools D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -built-in-libraries D:\arduino-1.8.9\libraries -libraries D:\Users\Jedzia.pubsiX\Documents\Arduino\libraries -fqbn=arduino:avr:uno -vid-pid=0X2341_0X0043 -ide-version=10809 -build-path D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_build_472693 -warnings=none -build-cache D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_cache_552243 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.arduinoOTA-1.2.1.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc-5.4.0-atmel3.6.1-arduino2.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude-6.3.0-arduino14.path=D:\arduino-1.8.9\hardware\tools\avr -verbose D:\arduino-1.8.9\examples\01.Basics\Blink\Blink.ino

@@ -26,7 +26,15 @@ set -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake and 
     
     set(SIZE avr-size)
     set(OBJCOPY avr-objcopy)
+    set(OBJDUMP avr-objdump)
+
     set(CMAKE_C_COMPILER avr-gcc)
     set(CMAKE_CXX_COMPILER avr-g++)
+    
+    set(CMAKE_AR avr-gcc-ar)
+    set(CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> qc <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> qc <TARGET> <LINK_FLAGS> <OBJECTS>")
+    
+    set(CMAKE_RANLIB avr-gcc-ranlib)
     
     #set(CMAKE_EXE_LINKER_FLAGS_INIT "--specs=rdimon.specs")
