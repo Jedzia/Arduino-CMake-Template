@@ -25,6 +25,18 @@ preferences and paths (see toolchain.local.avr.gcc.cmake, below).
     make -j
 	make clean && make -j
 
+MSys:
+
+    ✘ Jedzia@pubsiX  /e/Projects/Elektronik/Arduino/!Templates/CMake/Arduino-Uno-CMake-Template/buildMsys   master ●  
+    export PATH=$PATH:/c/Toolchain/AVR/avr-gcc-9.1.0-x64-mingw/bin
+    cmake -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.mingw64.avr.gcc.cmake -G"MSYS Makefiles" ..
+    make -j
+
+    # ninja has problems with ccache 
+    cmake -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.mingw64.avr.gcc.cmake -GNinja -DENABLE_CCACHE:BOOL=OFF ..
+    ninja
+    
+
 ### CLion: ###
 Set `-DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake` as CMake-Options and 
 provide a avr-gcc toolchain under Toolchains.
@@ -105,6 +117,13 @@ A build cycle snapshot:
     [100%] Built target avr_blink.hex
     
     E:\Projects\Elektronik\Arduino\!Templates\CMake\Arduino-Uno-CMake-Template\build>
-    
-![Windows Shell CMake configuration](doc/Media/2020-05-12_23_30_03-AVR_Embedded_GCC_Shell_configure.png)
-![Windows Shell running make](doc/Media/2020-05-12_23_30_03-AVR_Embedded_GCC_Shell.png)
+
+* Windows Shell CMake configuration    
+  ![Windows Shell CMake configuration](doc/Media/2020-05-12_23_30_03-AVR_Embedded_GCC_Shell_configure.png)
+* Windows Shell running make
+  ![Windows Shell running make](doc/Media/2020-05-12_23_30_03-AVR_Embedded_GCC_Shell.png)
+
+* MSYS2 CMake Configuration
+  ![MSYS2 CMake Configuration](doc/Media/2020-05-13 00_13_15-Cmder_Ninja.png)
+* MSYS2 running ninja  
+  ![MSYS2 running ninja](doc/Media/2020-05-13 00_12_35-Cmder.png)

@@ -175,3 +175,4 @@ dkms.conf
 *.app
 
 /local.cmake
+/buildMsys/
