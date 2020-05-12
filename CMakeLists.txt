@@ -5,9 +5,6 @@ project(myproject CXX)
 
 include(cmake/StandardProjectSettings.cmake)
 
-# should go into local setup
-add_definitions(-mmcu=atmega328p -Os)
-
 # check if we have a local cmake include file and include it if we do
 # this is useful for setting our python location or st-flash as an alternative to
 # environment variables
@@ -28,15 +25,14 @@ target_compile_features(project_options INTERFACE cxx_std_17)
 
 # Link this 'library' to use the warnings specified in CompilerWarnings.cmake
 add_library(project_warnings INTERFACE)
-
 # standard compiler warnings
 include(cmake/CompilerWarnings.cmake)
 set_project_warnings(project_warnings)
 
-## sanitizer options if supported by compiler
-#include(cmake/Sanitizers.cmake)
-#enable_sanitizers(project_options)
-#
+# sanitizer options if supported by compiler
+include(cmake/Sanitizers.cmake)
+enable_sanitizers(project_options)
+
 # enable doxygen
 include(cmake/Doxygen.cmake)
 enable_doxygen()
@@ -54,7 +50,8 @@ if (ENABLE_PCH)
   # is a good idea if any #define's change
   # 
   # 
-  target_precompile_headers(project_options INTERFACE <avr/io.h> <util/delay.h>)
+  #target_precompile_headers(project_options INTERFACE <avr/io.h> <util/delay.h>)
+  target_precompile_headers(project_options INTERFACE <avr/io.h>)
 endif()
 
 

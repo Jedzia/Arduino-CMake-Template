@@ -51,3 +51,5 @@ target_link_libraries(
 #target_link_libraries(
 #  avr_blink PRIVATE project_options project_warnings CONAN_PKG::docopt.cpp
 #                CONAN_PKG::fmt CONAN_PKG::spdlog)
+
+# ToDo: add std targets for objdump, objcopy to bin, hex, etc. and flash/avrdude/OpenOCD. see E:\Projects\Elektronik\ARM\STM32F4\STM32F401\SD_RTC-Shield\Software\Try02CMake\blinky\CMakeLists.txt
