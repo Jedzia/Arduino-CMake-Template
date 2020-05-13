@@ -27,7 +27,7 @@ preferences and paths (see toolchain.local.avr.gcc.cmake, below).
 
 MSys:
 
-    ✘ Jedzia@pubsiX  /e/Projects/Elektronik/Arduino/!Templates/CMake/Arduino-Uno-CMake-Template/buildMsys   master ●  
+    ✘ Jedzia@pubsiX  /e/Projects/Elektronik/Arduino/!Templates/CMake/Arduino-CMake-Template/buildMsys   master ●  
     export PATH=$PATH:/c/Toolchain/AVR/avr-gcc-9.1.0-x64-mingw/bin
     cmake -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.mingw64.avr.gcc.cmake -G"MSYS Makefiles" ..
     make -j
@@ -126,7 +126,7 @@ I use this when building with MSYS2 in a MSYS2 shell.
 
 A build cycle snapshot:
 
-    E:\Projects\Elektronik\Arduino\!Templates\CMake\Arduino-Uno-CMake-Template\build>make clean && make
+    E:\Projects\Elektronik\Arduino\!Templates\CMake\Arduino-CMake-Template\build>make clean && make
     [  3%] Building CXX object libs/libarduinocore/CMakeFiles/arduino_core.dir/CDC.cpp.obj
     [  6%] Building CXX object libs/libarduinocore/CMakeFiles/arduino_core.dir/HardwareSerial.cpp.obj
     [  9%] Building CXX object libs/libarduinocore/CMakeFiles/arduino_core.dir/HardwareSerial0.cpp.obj
@@ -158,7 +158,7 @@ A build cycle snapshot:
     [ 90%] Linking CXX executable avr_blink.elf
     Invoking: Cross ARM GNU Print Size
        text    data     bss     dec     hex filename
-       1974      28     166    2168     878 E:/Projects/Elektronik/Arduino/!Templates/CMake/Arduino-Uno-CMake-Template/build/src/avr_blink.elf
+       1974      28     166    2168     878 E:/Projects/Elektronik/Arduino/!Templates/CMake/Arduino-CMake-Template/build/src/avr_blink.elf
     [ 90%] Built target avr_blink.elf
     [ 93%] Invoking: Cross ARM GNU OBJCOPY avr_blink to binary
     [ 93%] Built target avr_blink.bin
@@ -167,4 +167,4 @@ A build cycle snapshot:
     [100%] Invoking: Cross ARM GNU OBJCOPY avr_blink to ihex
     [100%] Built target avr_blink.hex
     
-    E:\Projects\Elektronik\Arduino\!Templates\CMake\Arduino-Uno-CMake-Template\build>
+    E:\Projects\Elektronik\Arduino\!Templates\CMake\Arduino-CMake-Template\build>
