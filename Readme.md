@@ -108,17 +108,17 @@ I use this when building with MSYS2 in a MSYS2 shell.
 * Windows Shell running make
   ![Windows Shell running make](doc/Media/2020-05-12_23_30_03-AVR_Embedded_GCC_Shell.png)
 * Windows Shell flashing an Uno
-  ![Windows Shell flashing an Uno](doc/Media/2020-05-13 01_03_19-AVR_Embedded_GCC_Shell_flash.png)
+  ![Windows Shell flashing an Uno](doc/Media/2020-05-13_01_03_19-AVR_Embedded_GCC_Shell_flash.png)
 
 
 * MSYS2 CMake Configuration
-  ![MSYS2 CMake Configuration](doc/Media/2020-05-13 00_12_35-Cmder.png)
+  ![MSYS2 CMake Configuration](doc/Media/2020-05-13_00_12_35-Cmder.png)
 * MSYS2 running ninja  
-  ![MSYS2 running ninja](doc/Media/2020-05-13 00_13_15-Cmder_Ninja.png)
+  ![MSYS2 running ninja](doc/Media/2020-05-13_00_13_15-Cmder_Ninja.png)
 
 
 * CLion flashing an Uno  
-  ![CLion flashing an Uno](doc/Media/2020-05-13 01_04_13-Arduino-Uno-CMake-Template–main.cpp.png)
+  ![CLion flashing an Uno](doc/Media/2020-05-13_01_04_13-Arduino-Uno-CMake-Template–main.cpp.png)
 
 
 # Development Notes #    
