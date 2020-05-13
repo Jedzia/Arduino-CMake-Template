@@ -176,3 +176,5 @@ dkms.conf
 
 /local.cmake
 /buildMsys/
+*.md5~
+*.unc-backup~
