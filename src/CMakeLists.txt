@@ -22,6 +22,11 @@ target_link_libraries(${PROJECT_NAME}.elf PRIVATE
 #target_link_libraries(
 #  ${PROJECT_NAME}.elf PRIVATE project_options project_warnings CONAN_PKG::docopt.cpp
 #                CONAN_PKG::fmt CONAN_PKG::spdlog)
+if (ENABLE_UNITY)
+    # Add for any project you want to apply unity builds for
+    set_target_properties(${PROJECT_NAME}.elf PROPERTIES UNITY_BUILD ON)
+endif()
+
 do_objcopy(${PROJECT_NAME} bin)
 do_objcopy(${PROJECT_NAME} srec)
 do_objcopy(${PROJECT_NAME} hex)

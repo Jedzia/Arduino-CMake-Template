@@ -36,6 +36,10 @@ target_compile_options(arduino_core
 		PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-CC>
 		)
 target_link_options(arduino_core PUBLIC -fuse-linker-plugin -Wl,--gc-sections -flto)
+if (ENABLE_UNITY)
+	# Add for any project you want to apply unity builds for
+	# does not work here, set_target_properties(arduino_core PROPERTIES UNITY_BUILD ON)
+endif()
 
 #export library
 add_library(arduino::core ALIAS arduino_core)
