@@ -27,48 +27,17 @@ if (ENABLE_UNITY)
     set_target_properties(${PROJECT_NAME}.elf PROPERTIES UNITY_BUILD ON)
 endif()
 
+# see cmake/Arduino.cmake for a description of the following macros.
 do_objcopy(${PROJECT_NAME} bin)
 do_objcopy(${PROJECT_NAME} srec)
 do_objcopy(${PROJECT_NAME} hex)
 do_size(${PROJECT_NAME})
 
-# ToDo: move custom targets to cmake/Arduino.cmake.
+add_flash_target(${PROJECT_NAME})
+add_monitor_targets()
+add_inspection_targets(${PROJECT_NAME})
 
-# it seems that the ihex detour is not necessary, but use it anyway for compatibility.
-add_custom_target(objcopy_flash # create flash-ihex
-        ${OBJCOPY} -O ihex -R .eeprom "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep
-        #${OBJCOPY} -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep
-        DEPENDS ${PROJECT_NAME}.elf
-        COMMENT "Invoking: objcopy for flash '${PROJECT_NAME}.elf'")
 
-add_custom_target(flash # upload flash-ihex via avrdude
-        ${AVRDUDE} -c ${AVRDUDE_PROGRAMMER} -p ${AVRDUDE_PART} -b ${BAUDRATE} -P ${PORT} -U flash:w:"${PROJECT_NAME}.eep"
-        DEPENDS objcopy_flash
-        COMMENT "Invoking: avrdude flash with ${PROJECT_NAME}.eep")
-
-#add_custom_target(flash # upload the program via avrdude
-#        ${AVRDUDE} -c ${AVRDUDE_PROGRAMMER} -p ${AVRDUDE_PART} -b ${BAUDRATE} -P ${PORT} -U flash:w:"${PROJECT_NAME}.elf"
-#        DEPENDS ${PROJECT_NAME}.elf
-#        COMMENT "Invoking: avrdude flash with ${PROJECT_NAME}.elf")
-
-add_custom_target(monitor # Start serial monitor.
-        ${PYTHON} -m serial.tools.miniterm --raw --eol CRLF --encoding ascii ${PORT} ${BAUDRATE}
-        COMMENT "Invoking: miniterm on port ${PORT}. Exit with CTRL+'+'")
-add_custom_target(fmonitor # Flash target and start serial monitor.
-        ${PYTHON} -m serial.tools.miniterm --raw --eol CRLF --encoding ascii ${PORT} ${BAUDRATE}
-        DEPENDS flash
-        COMMENT "Invoking: miniterm on port ${PORT}. Exit with CTRL+'+'")
-
-add_custom_target(listing # Assembler listing
-        ${OBJDUMP} -S "${PROJECT_NAME}.elf" > ${PROJECT_NAME}.lst
-        DEPENDS ${PROJECT_NAME}.elf
-        COMMENT "Creating assembly listing of '${PROJECT_NAME}.elf'")
-
-add_custom_target(map # Map file with size information
-        COMMAND ${OBJDUMP} -t "${PROJECT_NAME}.elf" > ${PROJECT_NAME}.map
-        COMMAND ${SIZE} --format=berkeley "$<TARGET_FILE:${PROJECT_NAME}.elf>" >> ${PROJECT_NAME}.map
-        DEPENDS ${PROJECT_NAME}.elf
-        COMMENT "Creating assembly listing of '${PROJECT_NAME}.elf'")
 
 
 # This is an example how Arduino-IDE builds a project for an Arduino Uno.
