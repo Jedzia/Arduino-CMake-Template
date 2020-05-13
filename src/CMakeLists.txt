@@ -11,7 +11,7 @@ project(${PROJECT_NAME} C CXX ASM)
 #  add_subdirectory(sdl)
 #endif()
 
-# Generic test that uses conan libs
+# Main target that uses the arduino core library
 add_executable(${PROJECT_NAME}.elf main.cpp)
 target_link_libraries(${PROJECT_NAME}.elf PRIVATE
         arduino::core
@@ -20,6 +20,7 @@ target_link_libraries(${PROJECT_NAME}.elf PRIVATE
         # project_warnings # ToDo: make this work
 )
 #target_link_libraries(
+# As a placeholder in hope of a package manager
 #  ${PROJECT_NAME}.elf PRIVATE project_options project_warnings CONAN_PKG::docopt.cpp
 #                CONAN_PKG::fmt CONAN_PKG::spdlog)
 if (ENABLE_UNITY)
