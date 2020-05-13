@@ -34,22 +34,22 @@ do_size(${PROJECT_NAME})
 
 # ToDo: move custom targets to cmake/Arduino.cmake.
 
-# it seems that the ihex detour is not necessary
-#add_custom_target(objcopy_flash
-#        ${OBJCOPY} -O ihex -R .eeprom "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep.hex
-#        #${OBJCOPY} -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep
-#        DEPENDS ${PROJECT_NAME}.elf
-#        COMMENT "Invoking: objcopy for flash '${PROJECT_NAME}.elf'")
-#
-#add_custom_target(flash
-#        ${AVRDUDE} -c ${AVRDUDE_PROGRAMMER} -p ${AVRDUDE_PART} -b ${BAUDRATE} -P ${PORT} -U flash:w:"${PROJECT_NAME}.eep.hex"
-#        DEPENDS objcopy_flash
-#        COMMENT "Invoking: avrdude flash with ${PROJECT_NAME}.elf")
-
-add_custom_target(flash # upload the program via avrdude
-        ${AVRDUDE} -c ${AVRDUDE_PROGRAMMER} -p ${AVRDUDE_PART} -b ${BAUDRATE} -P ${PORT} -U flash:w:"${PROJECT_NAME}.elf"
+# it seems that the ihex detour is not necessary, but use it anyway for compatibility.
+add_custom_target(objcopy_flash # create flash-ihex
+        ${OBJCOPY} -O ihex -R .eeprom "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep
+        #${OBJCOPY} -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 "${PROJECT_NAME}.elf" ${PROJECT_NAME}.eep
         DEPENDS ${PROJECT_NAME}.elf
-        COMMENT "Invoking: avrdude flash with ${PROJECT_NAME}.elf")
+        COMMENT "Invoking: objcopy for flash '${PROJECT_NAME}.elf'")
+
+add_custom_target(flash # upload flash-ihex via avrdude
+        ${AVRDUDE} -c ${AVRDUDE_PROGRAMMER} -p ${AVRDUDE_PART} -b ${BAUDRATE} -P ${PORT} -U flash:w:"${PROJECT_NAME}.eep"
+        DEPENDS objcopy_flash
+        COMMENT "Invoking: avrdude flash with ${PROJECT_NAME}.eep")
+
+#add_custom_target(flash # upload the program via avrdude
+#        ${AVRDUDE} -c ${AVRDUDE_PROGRAMMER} -p ${AVRDUDE_PART} -b ${BAUDRATE} -P ${PORT} -U flash:w:"${PROJECT_NAME}.elf"
+#        DEPENDS ${PROJECT_NAME}.elf
+#        COMMENT "Invoking: avrdude flash with ${PROJECT_NAME}.elf")
 
 add_custom_target(monitor # Start serial monitor.
         ${PYTHON} -m serial.tools.miniterm --raw --eol CRLF --encoding ascii ${PORT} ${BAUDRATE}
@@ -71,7 +71,7 @@ add_custom_target(map # Map file with size information
         COMMENT "Creating assembly listing of '${PROJECT_NAME}.elf'")
 
 
-
+# This is an example how Arduino-IDE builds a project for an Arduino Uno.
 # D:\arduino-1.8.9\arduino-builder -dump-prefs -logger=machine -hardware D:\arduino-1.8.9\hardware -hardware D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -hardware D:\Users\Jedzia.pubsiX\Documents\Arduino\hardware -tools D:\arduino-1.8.9\tools-builder -tools D:\arduino-1.8.9\hardware\tools\avr -tools D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -built-in-libraries D:\arduino-1.8.9\libraries -libraries D:\Users\Jedzia.pubsiX\Documents\Arduino\libraries -fqbn=arduino:avr:uno -vid-pid=0X2341_0X0043 -ide-version=10809 -build-path D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_build_472693 -warnings=none -build-cache D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_cache_552243 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.arduinoOTA-1.2.1.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc-5.4.0-atmel3.6.1-arduino2.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude-6.3.0-arduino14.path=D:\arduino-1.8.9\hardware\tools\avr -verbose D:\arduino-1.8.9\examples\01.Basics\Blink\Blink.ino
 # D:\arduino-1.8.9\arduino-builder -compile -logger=machine -hardware D:\arduino-1.8.9\hardware -hardware D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -hardware D:\Users\Jedzia.pubsiX\Documents\Arduino\hardware -tools D:\arduino-1.8.9\tools-builder -tools D:\arduino-1.8.9\hardware\tools\avr -tools D:\Users\Jedzia.pubsiX\AppData\Local\Arduino15\packages -built-in-libraries D:\arduino-1.8.9\libraries -libraries D:\Users\Jedzia.pubsiX\Documents\Arduino\libraries -fqbn=arduino:avr:uno -vid-pid=0X2341_0X0043 -ide-version=10809 -build-path D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_build_472693 -warnings=none -build-cache D:\Users\JEDZIA~1.PUB\AppData\Local\Temp\arduino_cache_552243 -prefs=build.warn_data_percentage=75 -prefs=runtime.tools.arduinoOTA.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.arduinoOTA-1.2.1.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avr-gcc-5.4.0-atmel3.6.1-arduino2.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude.path=D:\arduino-1.8.9\hardware\tools\avr -prefs=runtime.tools.avrdude-6.3.0-arduino14.path=D:\arduino-1.8.9\hardware\tools\avr -verbose D:\arduino-1.8.9\examples\01.Basics\Blink\Blink.ino
 # Using board 'uno' from platform in folder: D:\arduino-1.8.9\hardware\arduino\avr
