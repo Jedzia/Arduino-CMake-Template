@@ -2,9 +2,12 @@
 
 I have my Arduino-IDE, why would i use this?
 - A **one second build-time** for a simple blink project like this? (Including the Arduino Library!).
+  Actually i got 0.2s build time with ninja under Gentoo-Linux, see "Running in Gentoo with Ninja" 
+  at the very bottom ...
 - Use an IDE that also deserves the name. (Code completion, the simplest essentials etc. ...)
 - Customization. For gods sake, use the tools the compiler provides. Like warnings, sanitizers,
-  formatters. Easy to switch command line switches and settings.
+  formatters. The possibility to use command line switches and settings. You should be the one 
+  in charge!
 - Ever heard of Doxygen? Ah, i see. This is why the quality of Arduino code and snippets
   is so "high"... 
 
@@ -27,7 +30,7 @@ preferences and paths (see toolchain.local.avr.gcc.cmake, below).
 	make clean && make -j
 	make 
 
-MSys:
+### MSys: ### 
 
     ✘ Jedzia@pubsiX  /e/Projects/Elektronik/Arduino/!Templates/CMake/Arduino-CMake-Template/buildMsys   master ●  
     export PATH=$PATH:/c/Toolchain/AVR/avr-gcc-9.1.0-x64-mingw/bin
@@ -40,11 +43,16 @@ MSys:
 
 See the example `toolchain.local.mingw64.avr.gcc.cmake` below (the second one with *.mingw64.* in it).
 
-Gentoo Linux:
+### Gentoo Linux: ### 
 	
 	jedzia@genbrut /devel/Arduino-CMake-Template/build $ 
 	cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.local.avr.gcc.cmake -G"Unix Makefiles" ..
-	make
+	make 
+
+or with ninja:
+
+	cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.local.avr.gcc.cmake -GNinja ..
+	ninja
 
 Under Gentoo Linux with avr-gcc i used the same `toolchain.local.avr.gcc.cmake` below with success. You have to tweak the flash targets
 for linux as i wasnt able to put this together yet. Oh, make a PR then, thanks;)
@@ -185,3 +193,15 @@ A build cycle snapshot:
     [100%] Built target avr_blink.hex
     
     E:\Projects\Elektronik\Arduino\!Templates\CMake\Arduino-CMake-Template\build>
+
+Running in Gentoo with Ninja
+
+	 jedzia@genbrut  /devel/Arduino-CMake-Template-linux/build   master  time ninja     
+	[28/31] Linking CXX executable src/avr_blink.elf
+	   text	   data	    bss	    dec	    hex	filename
+	   1942	     28	    166	   2136	    858	/devel/Arduino-CMake-Template-linux/build/src/avr_blink.elf
+	[31/31] Invoking: Cross ARM GNU OBJCOPY avr_blink to binary
+	ninja  0.20s user 0.14s system 84% cpu 0.407 total
+	 jedzia@genbrut  /devel/Arduino-CMake-Template-linux/build   master  
+	
+	
