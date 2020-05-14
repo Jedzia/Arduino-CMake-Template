@@ -17,6 +17,8 @@ preferences and paths (see toolchain.local.avr.gcc.cmake, below).
 
     E:\Projects\Elektronik\Arduino\!Templates\CMake\Uno-CMake-Template\build>
     cmake -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake -G"MinGW Makefiles" ..  
+	or the provided toolchain example file
+    cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.local.avr.gcc.cmake -G"MinGW Makefiles" ..  
 	cmake-gui -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake -G"MinGW Makefiles" ..
 
     make
@@ -38,6 +40,15 @@ MSys:
 
 See the example `toolchain.local.mingw64.avr.gcc.cmake` below (the second one with *.mingw64.* in it).
 
+Gentoo Linux:
+	
+	jedzia@genbrut /devel/Arduino-CMake-Template/build $ 
+	cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.local.avr.gcc.cmake -G"Unix Makefiles" ..
+	make
+
+Under Gentoo Linux with avr-gcc i used the same `toolchain.local.avr.gcc.cmake` below with success. You have to tweak the flash targets
+for linux as i wasnt able to put this together yet. Oh, make a PR then, thanks;)
+	
 ### CLion: ###
 Set `-DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake` as CMake-Options and 
 provide a avr-gcc toolchain under Toolchains.
@@ -120,6 +131,12 @@ I use this when building with MSYS2 in a MSYS2 shell.
 * CLion flashing an Uno  
   ![CLion flashing an Uno](doc/Media/2020-05-13_01_04_13-Arduino-Uno-CMake-Template–main.cpp.png)
 
+
+* Linux CMake Configuration
+  ![Linux CMake Configuration](doc/Media/genbrut-2020-05-14-13-42-05-configure.png)
+* Linux running make  
+  ![Linux running make](doc/Media/genbrut-2020-05-14-13-42-42-make.png)
+  
 
 # Development Notes #    
 
