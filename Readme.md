@@ -2,7 +2,7 @@
 
 I have my Arduino-IDE, why would i use this?
 - A **one second build-time** for a simple blink project like this? (Including the Arduino Library!).
-  Actually i got 0.2s build time with ninja under Gentoo-Linux, see "Running in Gentoo with Ninja" 
+  Actually i got 0.4s build time with ninja under Gentoo-Linux, see "Running in Gentoo with Ninja" 
   at the very bottom ...
 - Use an IDE that also deserves the name. (Code completion, the simplest essentials etc. ...)
 - Customization. For gods sake, use the tools the compiler provides. Like warnings, sanitizers,
@@ -20,7 +20,7 @@ preferences and paths (see toolchain.local.avr.gcc.cmake, below).
 
     E:\Projects\Elektronik\Arduino\!Templates\CMake\Uno-CMake-Template\build>
     cmake -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake -G"MinGW Makefiles" ..  
-	or the provided toolchain example file
+	# or with the provided toolchain example file
     cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.local.avr.gcc.cmake -G"MinGW Makefiles" ..  
 	cmake-gui -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.avr.gcc.cmake -G"MinGW Makefiles" ..
 
@@ -32,8 +32,11 @@ preferences and paths (see toolchain.local.avr.gcc.cmake, below).
 
 ### MSys: ### 
 
-    ✘ Jedzia@pubsiX  /e/Projects/Elektronik/Arduino/!Templates/CMake/Arduino-CMake-Template/buildMsys   master ●  
+    ✘ Jedzia@pubsiX  /e/Projects/Elektronik/Arduino/!Templates/CMake/Arduino-CMake-Template/buildMsys   master ● 
+    # add the compiler to your system PATH	
     export PATH=$PATH:/c/Toolchain/AVR/avr-gcc-9.1.0-x64-mingw/bin
+    cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.local.avr.gcc.cmake -G"MSYS Makefiles" ..  
+	# or use a toolchain file with absolute paths(tweak with your settings here)
     cmake -DCMAKE_TOOLCHAIN_FILE=C:/Toolchain/CMake/toolchain.local.mingw64.avr.gcc.cmake -G"MSYS Makefiles" ..
     make -j
 
@@ -119,6 +122,8 @@ I use this when building with MSYS2 in a MSYS2 shell.
     
     #set(CMAKE_EXE_LINKER_FLAGS_INIT "--specs=rdimon.specs")
 
+### Options ###	
+	
 ## Some Visual Impressions ## 
 
 
